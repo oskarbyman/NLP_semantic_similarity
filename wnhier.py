@@ -7,34 +7,79 @@ from nltk import pos_tag
 from scipy.stats import pearsonr
 
 from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import TfidfVectorizer
+nltk.download('stopwords')
 
 """
 Script for measuring the semantic similarity of the STSS-131 dataset with the similarity formula defined in the project specifiactions
 """
 
 
-def tokenize(S):
+def generate_synset(word):
     """
-    Tokenizes the sentence by splitting it into a list
+    Function for generating the nltk synset for a certain word
+
+    Params: 
+        word: the target word for the synset
+    Returns:
+        A wn synset of the word
+    """
+    return wn.synsets(word)
+
+def preprocess(sentence):
+    """
+    Function for preprocessing a sentence. 
+    The function tokenizes it and tags it with the appropriate POS tags
+    Removes stopwords and punctuation.
+
+    Params: 
+        sentence: the sentence that will be preprocessed
+    Returns:
+        a list of preprocessed words that are parsed from the sentence
+    """
+    _tokens = nltk.word_tokenize(sentence)
+    for token in raw_tokens:
+        if not token.lower() in nltk.corpus.stopwords.words("english"):
+            if not c.isalpha() for c in token:
+                if not c.isdigit() for c in token:
+                    tokens.append(token)
+    tagged_tokens = pos_tag(tokens)
+    return tagged_tokens
+
+def generate_sentence_hypernyms(sentence):
+    """
+    Generate hypernyms for every word in a sentence
+    Set is used to prevent duplicate hypernyms
 
     Params:
-        S: the sentence as a string
+        sentence: a tokenized and tagged list of words
     Returns:
-        A list of tokens
+        a set of hypernyms for the sentence
     """
-    return nltk.word_tokenize(S)
+    hypernyms = set()
+    for word in sentence:
+        word = word[0]
+        synsets = wn.synsets(word)
+        for sysnset in synsets:
+            hypernyms.update(set(synset.hypernyms()))
+    return hypernyms
 
-def tag(tokenized_S):
+def generate_sentence_hyponyms(sentence):
     """
-    Function for tagging a tokenized sentence with part of speech tags
+    Generate hyponyms for every word in a sentence
+    Set is used to prevent duplicate hyponyms
 
     Params:
-        tokenized_S: a list of words in a sentence
+        sentence: a tokenized and tagged list of words
     Returns:
-        a list of tuples where each tuple contains the word and the tag associated with it, e.g. ('obtain', 'VB')
+        a set of hyponyms for the sentence
     """
-    return pos_tag(tokenized_S)
+    hyponyms = set()
+    for word in sentence:
+        word = word[0]
+        synsets = wn.synsets(word)
+        for sysnset in synsets:
+            hyponyms.update(set(synset.hyponyms()))
+    return hyponyms
 
 def Sim(S1, S2):
     """
@@ -47,12 +92,37 @@ def Sim(S1, S2):
         similarity: The calculated similarity between the two input sentences
     """
 
-    # Variables
-    S1_nouns = []
-    S1_verbs = []
-    S2_nouns = []
-    S2_verbs = []
+    S1_preprocessed = preprocess(S1)
+    S2_preprocessed = preprocess(S2)
     
+    S1_nouns = [token for token in S1_preprocessed if token[1].startswith("NN")]
+    S1_verbs = [token for token in S1_preprocessed if token[1].startswith("VB")]
+    S2_nouns = [token for token in S2_preprocessed if token[1].startswith("NN")]
+    S2_verbs = [token for token in S2_preprocessed if token[1].startswith("VB")]
+    
+    # Create hypernyms for all nouns in both sentences
+    S1_noun_hypernyms = generate_sentence_hypernyms(S1_nouns)
+    S2_noun_hypernyms = generate_sentence_hypernyms(S2_nouns)
+
+    # Create hyponyms for all verbs in both sentences
+    S1_verb_hyponyms = generate_sentence_hyponyms(S1_verbs)
+    S2_verb_hyponyms = generate_sentence_hyponyms(S2_verbs)
+
+    # Create the unions and intersections used in the formula
+    verb_hyponyms_int = S1_verb_hyponyms.intersection(S2_verb_hyponyms)
+    verb_hyponyms_uni = S1_verb_hyponyms.union(S2_verb_hyponyms)
+
+    noun_hypernyms_int = S1_noun_hypernyms.intersection(S2_noun_hypernyms)
+    noun_hypernyms_uni = S1_noun_hypernyms.union(S2_noun_hypernyms)
+
+    try:
+        noun_result = len(noun_hypernyms_int) / len(noun_hypernyms_uni)
+        verb_result = len(verb_hyponyms_int) / len(verb_hyponyms_uni)
+    except Error as e:
+        print(f"Error occured: {e}")
+        pass
+    
+    similarity = 
 
 def main():
     pass
