@@ -65,18 +65,15 @@ def Similarity(T1, T2, num):
         Sim_score1 += Max*Idf[w1]
     Sim_score1 /= sum([Idf[w1] for w1 in words1])
     
-    print(round(Sim_score1,2))
     for w2 in words2:
         Max = 0
         for w1 in words1:
             score = wordSimilarity(w1,w2,num)
             if Max < score:
                Max = score
-        print(w2)
         Sim_score2 += Max*Idf[w2]
         
     Sim_score2 /= sum([Idf[w1] for w2 in words2])
-    print(round(Sim_score2,2))
 
     Sim = (Sim_score1+Sim_score2)/2
     
@@ -91,23 +88,15 @@ def main():
     wnSimilarity = []
     humanSimilarity = []
     
-    
-    
-    S1 = data[22][1]
-    S2 = data[22][2]
-    humanSimilarity.append(data[22][3])
-    wnSimilarity.append( Similarity(S1, S2, 0) )
-    
-    
     for i in range(1,len(data)):
         S1 = data[i][1]
         S2 = data[i][2]
-        humanSimilarity.append(data[i][3])
+        humanSimilarity.append( float( data[i][3] ) )
         wnSimilarity.append( Similarity(S1, S2, 0) )
     
-    
-    
-    
+    pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
+    print("The pearson correlation between the human judgement and wordnet similarity is:")
+    print(pearsonCorrelation)    
 
 if __name__ == "__main__":
     main()
