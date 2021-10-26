@@ -22,8 +22,6 @@ def preProcess(sentence):
     return words
 
 def wordSimilarity(w1,w2,num):
-    print(w1)
-    
     S1 = ""
     S2 = ""
     
