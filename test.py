@@ -5,7 +5,6 @@ import numpy as np
 from nltk.corpus import wordnet as wn
 from scipy.stats import pearsonr
 
-from nltk.corpus import wordnet as wn
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -48,6 +47,13 @@ def Similarity(T1, T2, num):
 
     Idf = dict(zip(tf.get_feature_names(), tf.idf_))
     
+    for w1 in words1:
+        if w1 not in Idf:
+            words1.remove(w1)
+    for w2 in words2:
+        if w2 not in Idf:
+            words2.remove(w2)
+
     Sim = 0
     Sim_score1 = 0
     Sim_score2 = 0
