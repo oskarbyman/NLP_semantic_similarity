@@ -1,7 +1,9 @@
 # !pip install scipy.stats
+# pip install spacy
 import csv
 import nltk
 import numpy as np
+import spacy
 from nltk.corpus import wordnet as wn
 from scipy.stats import pearsonr
 
@@ -11,17 +13,37 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 nltk.download('stopwords')
 nltk.download('punkt')
 
-def wup(S1, S2):
-    return S1.wup_similarity(S2)
+"""
+Script for measuring the semantic similarity of the STSS-131 dataset with WordNet Semantic Similarity in the style suggested in Lab 2
+"""
 
 def preProcess(sentence):
+    """
+    Function for preprocessing a sentence. 
+    The function tokenizes it, removes stopwords and punctuation.
+
+    Params: 
+        sentence: the sentence that will be preprocessed
+    Returns:
+        a list of preprocessed words that are parsed from the sentence
+    """
+
     Stopwords = list(set(nltk.corpus.stopwords.words('english')))
     words = word_tokenize(sentence)
     words = [word.lower() for word in words if word.isalpha() and word.lower() not in Stopwords] #get rid of numbers and Stopwords
  
     return words
 
-def wordSimilarity(w1,w2,num):
+def wordSimilarity(w1,w2):
+    """
+    Function for determining the semantic similarity of individual words. 
+
+    Params: 
+        w1,w2: The words to compare
+    Returns:
+        The similarity score of words
+    """
+
     S1 = ""
     S2 = ""
     
@@ -31,14 +53,32 @@ def wordSimilarity(w1,w2,num):
         S2 = wn.synsets(w2)[0]
     
     if S1 and S2:
-       similarity = wup(S1, S2)
+       similarity = S1.wup_similarity(S2)
        if similarity:
           return round(similarity,2)
     return 0
     
-def Similarity(T1, T2, num):
-    words1 = preProcess(T1)
-    words2 = preProcess(T2)
+def nounifySimilarity(T1, T2):
+    nlp = spacy.load("en_core_web_sm")
+    S1 = nlp(T1)
+    S2 = nlp(T2)
+    for token in S1:
+        print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
+                token.shape_, token.is_alpha, token.is_stop)
+
+def Similarity(S1, S2):
+    """
+    Function for determining the semantic similarity of two senteces.
+    First we remove the stopwords and punctuation and then compare individual words to the words on the other sentence.
+
+    Params: 
+        S1,S2: The senteces to compare
+    Returns:
+        The similarity score of senteces
+    """
+
+    words1 = preProcess(S1)
+    words2 = preProcess(S2)
     
     tf = TfidfVectorizer(use_idf=True)
     tf.fit_transform([' '.join(words1), ' '.join(words2)])
@@ -59,7 +99,7 @@ def Similarity(T1, T2, num):
     for w1 in words1:
         Max = 0
         for w2 in words2:
-            score = wordSimilarity(w1,w2,num)
+            score = wordSimilarity(w1,w2)
             if Max < score:
                Max = score
         Sim_score1 += Max*Idf[w1]
@@ -68,7 +108,7 @@ def Similarity(T1, T2, num):
     for w2 in words2:
         Max = 0
         for w1 in words1:
-            score = wordSimilarity(w1,w2,num)
+            score = wordSimilarity(w1,w2)
             if Max < score:
                Max = score
         Sim_score2 += Max*Idf[w2]
@@ -80,6 +120,9 @@ def Similarity(T1, T2, num):
     return round(Sim,2)
 
 def main():
+    """
+    Main function to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
+    """
     
     with open('STSS-131-Dataset.csv', newline='') as f:
         reader = csv.reader(f, delimiter=';')
