@@ -144,11 +144,11 @@ def Sim(S1, S2):
 
     return (noun_result + verb_result) / 2
 
-def main():
+def test_script():
     """
-    Main function to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
+    Test procedure to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
+    Reports the pearson correlation of the STSS-1311 dataset human judgement and the suggested scripts similarity
     """
-    
     with open('STSS-131-Dataset.csv', newline='') as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
@@ -166,5 +166,16 @@ def main():
     print("The pearson correlation between the human judgement and hierarchical reasoning similarity is:")
     print(pearsonCorrelation)
 
+def main(sent1="", sent2="", test=False):
+
+    if test:
+        test_script()
+    else:
+        """
+        Takes two string sentences as input and runs a semantic similarity test on them and reports the result
+        """
+        return Sim(sent1, sent2)
+
+
 if __name__ == "__main__":
-    main()
+    main(test=True)
