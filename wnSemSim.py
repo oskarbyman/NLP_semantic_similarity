@@ -57,14 +57,6 @@ def wordSimilarity(w1,w2):
        if similarity:
           return round(similarity,2)
     return 0
-    
-def nounifySimilarity(T1, T2):
-    nlp = spacy.load("en_core_web_sm")
-    S1 = nlp(T1)
-    S2 = nlp(T2)
-    for token in S1:
-        print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
-                token.shape_, token.is_alpha, token.is_stop)
 
 def Similarity(S1, S2):
     """
@@ -124,7 +116,7 @@ def main():
     Main function to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
     """
     
-    with open('STSS-131-Dataset.csv', newline='') as f:
+    with open('STSS-131-Dataset.csv', newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
     
@@ -135,7 +127,7 @@ def main():
         S1 = data[i][1]
         S2 = data[i][2]
         humanSimilarity.append( float( data[i][3] ) )
-        wnSimilarity.append( Similarity(S1, S2, 0) )
+        wnSimilarity.append( Similarity(S1, S2) )
     
     pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
     print("The pearson correlation between the human judgement and wordnet similarity is:")

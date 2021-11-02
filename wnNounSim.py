@@ -13,12 +13,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('stopwords')
 nltk.download('punkt')
-
 """
 Script for measuring the semantic similarity of the STSS-131 dataset with WordNet Semantic Similarity in the style suggested in Lab 2
 """
 
-def preProcess(sentence):
+def preProcess(S):
     """
     Function for preprocessing a sentence. 
     The function tokenizes it, removes stopwords and punctuation.
@@ -29,10 +28,33 @@ def preProcess(sentence):
         a list of preprocessed words that are parsed from the sentence
     """
 
+    nlp = spacy.load("en_core_web_sm")
+    sentence = nlp(S)
+
+    words = []
+    for token in sentence:
+        if not token.ent_type_ == "":
+            pass
+        elif token.pos_ == "NOUN":
+            words.append( token.text.lower() )
+        elif token.pos_ == "VERB":
+            a = convert( token.text, wn.VERB )
+            if a != "":
+                words.append( a )
+        elif token.pos_ == "ADJ":
+            a = convert( token.text, wn.ADJ )
+            if a != "":
+                words.append( a )
+        elif token.pos_ == "ADV":
+            a = convert( token.text, wn.ADV )
+            if a != "":
+                words.append( a )
+
+    """
     Stopwords = list(set(nltk.corpus.stopwords.words('english')))
     words = word_tokenize(sentence)
     words = [word.lower() for word in words if word.isalpha() and word.lower() not in Stopwords] #get rid of numbers and Stopwords
- 
+    """
     return words
 
 def wordSimilarity(w1,w2):
@@ -58,21 +80,46 @@ def wordSimilarity(w1,w2):
        if similarity:
           return round(similarity,2)
     return 0
-    
-def nounify(word, type):
-    try:
-        if type == "VERB":
-            lem = wn.lemmas(word, pos=wn.VERB)[0]
-        elif type == "ADJ":
-            lem = wn.lemmas(word, pos=wn.ADJ)[0]
-        elif type == "ADV":
-            lem = wn.lemmas(word, pos=wn.ADV)[0]
 
-        derived = lem.derivationally_related_forms()[0]
-        noun = wn.synsets(derived.name(), pos=wn.NOUN)[0].lemma_names()[0]
-    except:
-        noun = ""
-    return noun
+def convert(word, from_pos, to_pos=wn.NOUN):    
+    """ Transform words given from/to POS tags """
+    
+    synsets = wn.synsets(word, pos=from_pos)
+ 
+    # Word not found
+    if not synsets:
+        return ""
+ 
+    # Get all lemmas of the word (consider 'a'and 's' equivalent)
+    lemmas = [l for s in synsets
+                for l in s.lemmas()
+                if s.name().split('.')[1] == from_pos
+                    or from_pos in (wn.ADJ, wn.ADJ_SAT)
+                        and s.name().split('.')[1] in (wn.ADJ, wn.ADJ_SAT)]
+ 
+    # Get related forms
+    derivationally_related_forms = [(l, l.derivationally_related_forms()) for l in lemmas]
+ 
+    # filter only the desired pos (consider 'a' and 's' equivalent)
+    related_noun_lemmas = [l for drf in derivationally_related_forms
+                             for l in drf[1] 
+                             if l.synset().name().split('.')[1] == to_pos
+                                or to_pos in (wn.ADJ, wn.ADJ_SAT)
+                                    and l.synset.name.split('.')[1] in (wn.ADJ, wn.ADJ_SAT)]
+ 
+    # Extract the words from the lemmas
+    words = [l.name for l in related_noun_lemmas]
+    len_words = len(words)
+ 
+    # Build the result in the form of a list containing tuples (word, probability)
+    result = [(w, float(words.count(w))/len_words) for w in set(words)]
+    result.sort(key=lambda w: -w[1])
+ 
+    # return all the possibilities sorted by probability
+    if not result:
+        return ""
+    return result[0][0]()
+
 
 def Similarity(S1, S2):
     """
@@ -85,43 +132,36 @@ def Similarity(S1, S2):
         The similarity score of senteces
     """
 
-    nlp = spacy.load("en_core_web_sm")
-    sentence1 = nlp(S1)
-    sentence2 = nlp(S2)
-
-    sent1 = []
-
-    for token in sentence1:
-        if token.pos_ == "NOUN":
-            sent1.append( token.text )
-        elif token.pos_ == "VERB":
-            sent1.append( nounify( token.text, "VERB" ) )
-        elif token.pos_ == "ADJ":
-            sent1.append( nounify( token.text, "ADJ" ) )
-        elif token.pos_ == "ADV":
-            sent1.append( nounify ( token.text, "ADV" ) )
-
-    print(sent1)
-
     words1 = preProcess(S1)
     words2 = preProcess(S2)
-    
+    """
     tf = TfidfVectorizer(use_idf=True)
     tf.fit_transform([' '.join(words1), ' '.join(words2)])
 
     Idf = dict(zip(tf.get_feature_names(), tf.idf_))
-    
+
     for w1 in words1:
         if w1 not in Idf:
             words1.remove(w1)
     for w2 in words2:
         if w2 not in Idf:
             words2.remove(w2)
-
+    """
     Sim = 0
-    Sim_score1 = 0
-    Sim_score2 = 0
-    
+    count = 0
+
+    for w1 in words1:
+        for w2 in words2:
+            Sim = Sim + wordSimilarity(w1,w2)
+            Sim = Sim + wordSimilarity(w2,w1)
+            count = count + 2
+            
+
+    if count > 0:
+        Sim = Sim / count
+
+    print(Sim)
+    """
     for w1 in words1:
         Max = 0
         for w2 in words2:
@@ -129,8 +169,12 @@ def Similarity(S1, S2):
             if Max < score:
                Max = score
         Sim_score1 += Max*Idf[w1]
-    Sim_score1 /= sum([Idf[w1] for w1 in words1])
-    
+    try:
+        Sim_score1 /= sum([Idf[w1] for w1 in words1])
+    except:
+        pass
+
+
     for w2 in words2:
         Max = 0
         for w1 in words1:
@@ -139,30 +183,36 @@ def Similarity(S1, S2):
                Max = score
         Sim_score2 += Max*Idf[w2]
         
-    Sim_score2 /= sum([Idf[w1] for w2 in words2])
-
-    Sim = (Sim_score1+Sim_score2)/2
+    try:
+        Sim_score2 /= sum([Idf[w1] for w2 in words2])
+    except:
+        pass
     
+    Sim = (Sim_score1+Sim_score2)/2
+    """
     return round(Sim,2)
 
 def main():
     """
     Main function to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
     """
-    
-    with open('STSS-131-Dataset.csv', newline='') as f:
+
+    with open('STSS-131-Dataset.csv', newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
     
     wnSimilarity = []
     humanSimilarity = []
-    
+
     for i in range(1,len(data)):
         S1 = data[i][1]
         S2 = data[i][2]
         humanSimilarity.append( float( data[i][3] ) )
-        wnSimilarity.append( Similarity(S1, S2, 0) )
+        wnSimilarity.append( Similarity(S1, S2) )
     
+    for i in range(len(humanSimilarity)):
+        print(str(humanSimilarity[i]) + ", " + str(wnSimilarity[i]))
+
     pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
     print("The pearson correlation between the human judgement and wordnet similarity is:")
     print(pearsonCorrelation)    

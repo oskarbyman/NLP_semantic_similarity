@@ -149,7 +149,7 @@ def test_script():
     Test procedure to run the test. Loads STSS-131 dataset from STSS-131-Dataset.csv file.
     Reports the pearson correlation of the STSS-1311 dataset human judgement and the suggested scripts similarity
     """
-    with open('STSS-131-Dataset.csv', newline='') as f:
+    with open('STSS-131-Dataset.csv', newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
     
