@@ -12,7 +12,7 @@ def handle_csv(file):
     Returns:
         a list with the csv file contents
     """
-    with open(file, newline='') as f:
+    with open(file, newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
     return data
