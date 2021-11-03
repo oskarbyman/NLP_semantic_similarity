@@ -34,7 +34,9 @@ def preProcess(S):
     words = []
     for token in sentence:
         if not token.ent_type_ == "":
-            pass
+            continue
+        elif token.is_stop:
+            continue
         elif token.pos_ == "NOUN":
             words.append( token.text.lower() )
         elif token.pos_ == "VERB":
@@ -50,11 +52,7 @@ def preProcess(S):
             if a != "":
                 words.append( a )
 
-    """
-    Stopwords = list(set(nltk.corpus.stopwords.words('english')))
-    words = word_tokenize(sentence)
-    words = [word.lower() for word in words if word.isalpha() and word.lower() not in Stopwords] #get rid of numbers and Stopwords
-    """
+
     return words
 
 def wordSimilarity(w1,w2):
@@ -67,18 +65,16 @@ def wordSimilarity(w1,w2):
         The similarity score of words
     """
 
-    S1 = ""
-    S2 = ""
-    
-    if wn.synsets(w1):
+    try:
         S1 = wn.synsets(w1)[0]
-    if wn.synsets(w2):
         S2 = wn.synsets(w2)[0]
-    
-    if S1 and S2:
-       similarity = S1.wup_similarity(S2)
-       if similarity:
-          return round(similarity,2)
+        
+        if S1 and S2:
+            similarity = S1.wup_similarity(S2)
+            if similarity:
+                return round(similarity,2)
+    except:
+        return 0
     return 0
 
 def convert(word, from_pos, to_pos=wn.NOUN):    
@@ -155,41 +151,10 @@ def Similarity(S1, S2):
             Sim = Sim + wordSimilarity(w1,w2)
             Sim = Sim + wordSimilarity(w2,w1)
             count = count + 2
-            
-
+    
     if count > 0:
         Sim = Sim / count
 
-    print(Sim)
-    """
-    for w1 in words1:
-        Max = 0
-        for w2 in words2:
-            score = wordSimilarity(w1,w2)
-            if Max < score:
-               Max = score
-        Sim_score1 += Max*Idf[w1]
-    try:
-        Sim_score1 /= sum([Idf[w1] for w1 in words1])
-    except:
-        pass
-
-
-    for w2 in words2:
-        Max = 0
-        for w1 in words1:
-            score = wordSimilarity(w1,w2)
-            if Max < score:
-               Max = score
-        Sim_score2 += Max*Idf[w2]
-        
-    try:
-        Sim_score2 /= sum([Idf[w1] for w2 in words2])
-    except:
-        pass
-    
-    Sim = (Sim_score1+Sim_score2)/2
-    """
     return round(Sim,2)
 
 def main():
@@ -210,8 +175,8 @@ def main():
         humanSimilarity.append( float( data[i][3] ) )
         wnSimilarity.append( Similarity(S1, S2) )
     
-    for i in range(len(humanSimilarity)):
-        print(str(humanSimilarity[i]) + ", " + str(wnSimilarity[i]))
+    #for i in range(len(humanSimilarity)):
+    #    print(str(humanSimilarity[i]) + ", " + str(wnSimilarity[i]))
 
     pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
     print("The pearson correlation between the human judgement and wordnet similarity is:")

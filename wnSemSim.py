@@ -10,6 +10,9 @@ from scipy.stats import pearsonr
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+#from nltk.corpus import genesis
+#genesis_ic = wn.ic(genesis, False, 0.0)
+
 nltk.download('stopwords')
 nltk.download('punkt')
 
@@ -43,20 +46,19 @@ def wordSimilarity(w1,w2):
     Returns:
         The similarity score of words
     """
-
-    S1 = ""
-    S2 = ""
-    
-    if wn.synsets(w1):
+    try:
         S1 = wn.synsets(w1)[0]
-    if wn.synsets(w2):
         S2 = wn.synsets(w2)[0]
-    
-    if S1 and S2:
-       similarity = S1.wup_similarity(S2)
-       if similarity:
-          return round(similarity,2)
+        
+        if S1 and S2:
+            #similarity = S1.res_similarity(S2, genesis_ic)
+            similarity = S1.wup_similarity(S2)
+            if similarity:
+                return round(similarity,2)
+    except:
+        return 0
     return 0
+    
 
 def Similarity(S1, S2):
     """
@@ -104,8 +106,7 @@ def Similarity(S1, S2):
             if Max < score:
                Max = score
         Sim_score2 += Max*Idf[w2]
-        
-    Sim_score2 /= sum([Idf[w1] for w2 in words2])
+    Sim_score2 /= sum([Idf[w2] for w2 in words2])
 
     Sim = (Sim_score1+Sim_score2)/2
     
