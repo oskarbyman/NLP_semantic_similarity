@@ -19,7 +19,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -c CSV, --csv CSV     Input csv file, must have sentences as the first and second element of each row
   -s SENTENCES, --sentences SENTENCES
-                        semi-colon separated sentences, e.g. 'The weather is sunny';'The moon is not present'
+                        semi-colon separated sentences, e.g. 'The weather is sunny;The moon is not present'
   -m {hierarchical,wu-palmer,idf}, --mode {hierarchical,wu-palmer,idf}
                         Choose the mode of similarity measurement
   -o OUTPUT, --output OUTPUT

@@ -67,7 +67,7 @@ def main():
     parser_use = subparsers.add_parser("use", help="For actual usage of the program. Use 'use -h', for help.")
     input_group = parser_use.add_mutually_exclusive_group(required=True)
     input_group.add_argument("-c", "--csv", help="Input csv file, must have sentences as the first and second element of each row")
-    input_group.add_argument("-s", "--sentences", help="semi-colon separated sentences, e.g. 'The weather is sunny';'The moon is not present'")
+    input_group.add_argument("-s", "--sentences", help="semi-colon separated sentences, e.g. 'The weather is sunny;The moon is not present'")
     parser_use.add_argument("-m", "--mode", help="Choose the mode of similarity measurement", choices=["hierarchical", "wu-palmer", "idf"], required=True)
     parser_use.add_argument("-o", "--output", help="Name of the output file, if empty results will be printed and returned")
     args = parser.parse_args()
