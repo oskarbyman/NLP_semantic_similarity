@@ -3,6 +3,13 @@ Natural Language Processing course assignment, project 16. Semantic Similarity o
 
 This repository contains three different semantic similarity scripts and a main script which functions as the CLI for running the scripts with custom data.
 
+### Note
+Scripts in this repository require spacy and nltk, which should be installed. 
+Different NLTK modules should download automatically when running the scripts, but the spacy model might have to be downloaded with the following command:
+```bash
+python -m spacy download en_core_web_sm
+```
+
 ## Usage of main.py
 
 ### Test usage
