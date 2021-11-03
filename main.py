@@ -1,6 +1,8 @@
 import argparse
 import csv
 import wnhier
+import wnNounSim
+import wnSemSim
 
 def handle_csv(file):
     """
@@ -36,8 +38,9 @@ def run_script(mode, data, output_file=None):
         if mode == "hierarchical":
             results.append(wnhier.Sim(S1, S2))
         elif mode == "wu-palmer":
-            pass
-            #results.append(wnSemSim.?(S1, S2))
+            results.append(wnNounSim.Similarity(S1, S2))
+        elif mode == "idf":
+            results.append(wnSemSim.Similarity(S1, S2))
     if output_file:
         with open(output_file, 'a', newline='') as f:
             writer = csv.writer(f, delimiter=";")
@@ -65,11 +68,16 @@ def main():
     input_group = parser_use.add_mutually_exclusive_group(required=True)
     input_group.add_argument("-c", "--csv", help="Input csv file, must have sentences as the first and second element of each row")
     input_group.add_argument("-s", "--sentences", help="semi-colon separated sentences, e.g. 'The weather is sunny';'The moon is not present'")
-    parser_use.add_argument("-m", "--mode", help="Choose the mode of similarity measurement", choices=["hierarchical", "wu-palmer"], required=True)
+    parser_use.add_argument("-m", "--mode", help="Choose the mode of similarity measurement", choices=["hierarchical", "wu-palmer", "idf"], required=True)
     parser_use.add_argument("-o", "--output", help="Name of the output file, if empty results will be printed and returned")
     args = parser.parse_args()
 
     if hasattr(args, "test"):
+        print("Running The Inverse Document Frequency based semantic similarity script...")
+        wnSemSim.main()
+        print("Running Wu-Palmer Noun derivation based semantic similarity script...")
+        wnNounSim.main()
+        print("Running Hierarchical reasoning semantic similarity test script...")
         wnhier.test_script()
     else:
         if args.csv:
