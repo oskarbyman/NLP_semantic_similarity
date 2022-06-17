@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 output.csv
 _School_NLP_SemanticSimilarity_NLP_semantic_similarity_wnhier.py1.stats
+_School_NLP_SemanticSimilarity_NLP_semantic_similarity_main.py1.stats
+_School_NLP_SemanticSimilarity_NLP_semantic_similarity_wnSemSim.py1.stats
+_School_NLP_SemanticSimilarity_NLP_semantic_similarity_wnNounSim.py1.stats
