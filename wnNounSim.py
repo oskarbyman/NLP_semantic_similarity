@@ -19,10 +19,10 @@ Script for measuring the semantic similarity of the STSS-131 dataset with WordNe
 
 def preProcess(S):
     """
-    Function for preprocessing a sentence. 
+    Function for preprocessing a sentence.
     The function tokenizes it, removes stopwords and punctuation.
 
-    Params: 
+    Params:
         sentence: the sentence that will be preprocessed
     Returns:
         a list of preprocessed words that are parsed from the sentence
@@ -57,9 +57,9 @@ def preProcess(S):
 
 def wordSimilarity(w1,w2):
     """
-    Function for determining the semantic similarity of individual words. 
+    Function for determining the semantic similarity of individual words.
 
-    Params: 
+    Params:
         w1,w2: The words to compare
     Returns:
         The similarity score of words
@@ -68,7 +68,7 @@ def wordSimilarity(w1,w2):
     try:
         S1 = wn.synsets(w1)[0]
         S2 = wn.synsets(w2)[0]
-        
+
         if S1 and S2:
             similarity = S1.wup_similarity(S2)
             if similarity:
@@ -77,40 +77,40 @@ def wordSimilarity(w1,w2):
         return 0
     return 0
 
-def convert(word, from_pos, to_pos=wn.NOUN):    
+def convert(word, from_pos, to_pos=wn.NOUN):
     """ Transform words given from/to POS tags """
-    
+
     synsets = wn.synsets(word, pos=from_pos)
- 
+
     # Word not found
     if not synsets:
         return ""
- 
+
     # Get all lemmas of the word (consider 'a'and 's' equivalent)
     lemmas = [l for s in synsets
                 for l in s.lemmas()
                 if s.name().split('.')[1] == from_pos
                     or from_pos in (wn.ADJ, wn.ADJ_SAT)
                         and s.name().split('.')[1] in (wn.ADJ, wn.ADJ_SAT)]
- 
+
     # Get related forms
     derivationally_related_forms = [(l, l.derivationally_related_forms()) for l in lemmas]
- 
+
     # filter only the desired pos (consider 'a' and 's' equivalent)
     related_noun_lemmas = [l for drf in derivationally_related_forms
                              for l in drf[1] 
                              if l.synset().name().split('.')[1] == to_pos
                                 or to_pos in (wn.ADJ, wn.ADJ_SAT)
                                     and l.synset.name.split('.')[1] in (wn.ADJ, wn.ADJ_SAT)]
- 
+
     # Extract the words from the lemmas
     words = [l.name for l in related_noun_lemmas]
     len_words = len(words)
- 
+
     # Build the result in the form of a list containing tuples (word, probability)
     result = [(w, float(words.count(w))/len_words) for w in set(words)]
     result.sort(key=lambda w: -w[1])
- 
+
     # return all the possibilities sorted by probability
     if not result:
         return ""
@@ -122,7 +122,7 @@ def Similarity(S1, S2):
     Function for determining the semantic similarity of two senteces.
     First we remove the stopwords and punctuation and then compare individual words to the words on the other sentence.
 
-    Params: 
+    Params:
         S1,S2: The senteces to compare
     Returns:
         The similarity score of senteces
@@ -151,7 +151,7 @@ def Similarity(S1, S2):
             Sim = Sim + wordSimilarity(w1,w2)
             Sim = Sim + wordSimilarity(w2,w1)
             count = count + 2
-    
+
     if count > 0:
         Sim = Sim / count
 
@@ -165,7 +165,7 @@ def main():
     with open('STSS-131-Dataset.csv', newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
-    
+
     wnSimilarity = []
     humanSimilarity = []
 
@@ -174,13 +174,13 @@ def main():
         S2 = data[i][2]
         humanSimilarity.append( float( data[i][3] ) )
         wnSimilarity.append( Similarity(S1, S2) )
-    
+
     #for i in range(len(humanSimilarity)):
     #    print(str(humanSimilarity[i]) + ", " + str(wnSimilarity[i]))
 
     pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
     print("The pearson correlation between the human judgement and wordnet similarity is:")
-    print(pearsonCorrelation)    
+    print(pearsonCorrelation)
 
 if __name__ == "__main__":
     main()

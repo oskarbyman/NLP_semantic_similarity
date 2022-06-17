@@ -9,7 +9,7 @@ def handle_csv(file):
     Handles csv files by parsing them into a list.
     Requires the delimiter to be a semi-colon.
 
-    Params: 
+    Params:
         file: a csv filename
     Returns:
         a list with the csv file contents
@@ -25,7 +25,7 @@ def run_script(mode, data, output_file=None):
 
     Params:
         mode: Either hierarchical or wu-palmer
-        data: a two dimensional list, 
+        data: a two dimensional list,
             where sentence pairs are the first and second element of a row
         output_file: filename where the results will be appended
     Returns:
@@ -92,6 +92,6 @@ def main():
         else:
             print(f"Results saved to {args.output}")
 
-    
+
 if __name__ == "__main__":
     main()
