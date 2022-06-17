@@ -19,7 +19,7 @@ def generate_synset(word):
     """
     Function for generating the nltk synset for a certain word
 
-    Params: 
+    Params:
         word: the target word for the synset
     Returns:
         A wn synset of the word
@@ -28,11 +28,11 @@ def generate_synset(word):
 
 def preprocess(sentence):
     """
-    Function for preprocessing a sentence. 
+    Function for preprocessing a sentence.
     The function tokenizes it and tags it with the appropriate POS tags
     Removes stopwords and punctuation.
 
-    Params: 
+    Params:
         sentence: the sentence that will be preprocessed
     Returns:
         a list of preprocessed words that are parsed from the sentence
@@ -95,7 +95,7 @@ def process_word_pair(w1, w2):
         w2_nyms = generate_word_hyponyms(w2[0])
     else:
         return 0
-    
+
     nym_intersection = w1_nyms.intersection(w2_nyms)
     nym_union = w1_nyms.union(w2_nyms)
     try:
@@ -108,7 +108,7 @@ def process_word_pair(w1, w2):
 def Sim(S1, S2):
     """
     Function for implementing the formula of Semantic Similarity presented in the project specification
-    Calculates the max value of the 
+    Calculates the max value of the
 
     Params:
         S1: a string, Sentence 1
@@ -119,7 +119,7 @@ def Sim(S1, S2):
 
     S1_preprocessed = preprocess(S1)
     S2_preprocessed = preprocess(S2)
-    
+
     S1_nouns = [token for token in S1_preprocessed if token[1].startswith("NN")]
     S1_verbs = [token for token in S1_preprocessed if token[1].startswith("VB")]
     S2_nouns = [token for token in S2_preprocessed if token[1].startswith("NN")]
@@ -152,16 +152,16 @@ def test_script():
     with open('STSS-131-Dataset.csv', newline='', encoding="utf8") as f:
         reader = csv.reader(f, delimiter=';')
         data = list(reader)
-    
+
     wnHierSimilarity = []
     humanSimilarity = []
-    
+
     for i in range(1,len(data)):
         S1 = data[i][1]
         S2 = data[i][2]
         humanSimilarity.append(float(data[i][3]))
         wnHierSimilarity.append(Sim(S1, S2))
-    
+
     pearsonCorrelation = pearsonr(wnHierSimilarity, humanSimilarity)[0]
     print("The pearson correlation between the human judgement and hierarchical reasoning similarity is:")
     print(pearsonCorrelation)
