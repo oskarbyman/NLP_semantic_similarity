@@ -1,4 +1,8 @@
 # !pip install scipy.stats
+"""
+Script for measuring the semantic similarity of the STSS-131 dataset
+with the similarity formula defined in the project specifiactions
+"""
 import csv
 import nltk
 import numpy as np
@@ -10,9 +14,6 @@ from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 
-"""
-Script for measuring the semantic similarity of the STSS-131 dataset with the similarity formula defined in the project specifiactions
-"""
 
 
 def generate_synset(word):
@@ -162,9 +163,9 @@ def test_script():
         humanSimilarity.append(float(data[i][3]))
         wnHierSimilarity.append(Sim(S1, S2))
 
-    pearsonCorrelation = pearsonr(wnHierSimilarity, humanSimilarity)[0]
+    pearsonCorrelation, pvalue = pearsonr(wnHierSimilarity, humanSimilarity)
     print("The pearson correlation between the human judgement and hierarchical reasoning similarity is:")
-    print(pearsonCorrelation)
+    print(f"{pearsonCorrelation}, with a p-value of: {pvalue}")
 
 def main(sent1="", sent2="", test=False):
 

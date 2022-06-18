@@ -178,9 +178,9 @@ def main():
     #for i in range(len(humanSimilarity)):
     #    print(str(humanSimilarity[i]) + ", " + str(wnSimilarity[i]))
 
-    pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
+    pearsonCorrelation, pvalue = pearsonr( wnSimilarity, humanSimilarity )
     print("The pearson correlation between the human judgement and wordnet similarity is:")
-    print(pearsonCorrelation)
+    print(f"{pearsonCorrelation}, with a p-value of: {pvalue}")
 
 if __name__ == "__main__":
     main()

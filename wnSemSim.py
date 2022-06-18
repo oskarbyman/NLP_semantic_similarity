@@ -130,9 +130,9 @@ def main():
         humanSimilarity.append( float( data[i][3] ) )
         wnSimilarity.append( Similarity(S1, S2) )
 
-    pearsonCorrelation = pearsonr( wnSimilarity, humanSimilarity )[0]
+    pearsonCorrelation, pvalue = pearsonr( wnSimilarity, humanSimilarity )
     print("The pearson correlation between the human judgement and wordnet similarity is:")
-    print(pearsonCorrelation)
+    print(f"{pearsonCorrelation}, with a p-value of: {pvalue}")
 
 if __name__ == "__main__":
     main()
